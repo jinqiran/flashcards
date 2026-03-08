@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Flashcards</title>
+<style>
+body{
+  font-family:Arial, sans-serif;
+  margin:20px;
+}
+button{
+  padding:10px 16px;
+  margin:6px 6px 6px 0;
+  font-size:16px;
+}
+#search{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  box-sizing:border-box;
+  margin:12px 0 20px 0;
+}
+#cards{
+  margin-top:10px;
+}
+.card{
+  padding:10px 8px;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+}
+.card:hover{
+  background:#f5f5f5;
+}
+#viewer{
+  margin-top:20px;
+}
+#viewer img{
+  max-width:100%;
+  height:auto;
+  margin-top:12px;
+}
+</style>
+</head>
+<body>
+
+<h1>Ultimate Flashcards</h1>
+<h2 id="status">Click Start</h2>
+
+<button onclick="nextCard()">Start / Next</button>
+<button onclick="showImage()">Show Image</button>
+<button onclick="goFullscreen()">Fullscreen</button>
+
+<input id="search" placeholder="Search filename..." oninput="render()">
+
+<h2>Cards</h2>
+<div id="cards"></div>
+
+<div id="viewer"></div>
+
+<script>
+let cards = []
+let current = null
+let touchStartX = 0
+let touchEndX = 0
+
+async function loadImages(){
+  const res = await fetch("https://api.github.com/repos/jinqiran/flashcards/contents/images")
+  const data = await res.json()
+
+  cards = data
+    .filter(f => f.type === "file")
+    .filter(f => /\.(png|jpg|jpeg|gif|webp)$/i.test(f.name))
+    .map(f => ({
+      name: f.name,
+      url: f.download_url
+    }))
+
+  render()
+}
+
+function render(){
+  const q = document.getElementById("search").value.toLowerCase()
+  const div = document.getElementById("cards")
+  div.innerHTML = ""
+
+  cards
+    .filter(c => c.name.toLowerCase().includes(q))
+    .forEach(c => {
+      const d = document.createElement("div")
+      d.className = "card"
+      d.textContent = c.name
+      d.onclick = () => {
+        current = c
+        showImage()
+      }
+      div.appendChild(d)
+    })
+}
+
+function nextCard(){
+  if(cards.length === 0){
+    document.getElementById("status").textContent = "No cards found"
+    return
+  }
+  current = cards[Math.floor(Math.random() * cards.length)]
+  document.getElementById("status").textContent = current.name
+  document.getElementById("viewer").innerHTML = ""
+}
+
+function showImage(){
+  if(!current) return
+  document.getElementById("status").textContent = current.name
+  document.getElementById("viewer").innerHTML =
+    "<img src='" + current.url + "' alt='" + current.name.replace(/'/g, "&apos;") + "'>"
+}
+
+function goFullscreen(){
+  if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen()
+  }
+}
+
+document.addEventListener("touchstart", e => {
+  touchStartX = e.changedTouches[0].screenX
+})
+
+document.addEventListener("touchend", e => {
+  touchEndX = e.changedTouches[0].screenX
+  handleSwipe()
+})
+
+function handleSwipe(){
+  if(touchEndX < touchStartX - 50){
+    nextCard()
+  } else if(touchEndX > touchStartX + 50){
+    showImage()
+  }
+}
+
+loadImages()
+</script>
+
+</body>
+</html>
