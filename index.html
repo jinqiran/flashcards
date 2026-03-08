@@ -40,13 +40,14 @@ const res = await fetch(
 const data = await res.json()
 
 cards = data
+.filter(f => f.type === "file")
 .filter(f => f.name.match(/\.(png|jpg|jpeg|gif)$/i))
 .map(f => ({
 name: f.name,
 url: f.download_url,
 time: Date.now()
 }))
-
+  
 render()
 
 }
