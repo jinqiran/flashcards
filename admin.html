@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Flashcard Admin Upload</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+
+<script>
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+function upload(){
+
+const files=document.getElementById("files").files
+
+for(let f of files){
+
+const reader=new FileReader()
+
+reader.onload=e=>{
+
+db.collection("cards").add({
+name:f.name,
+url:e.target.result,
+time:Date.now()
+})
+
+}
+
+reader.readAsDataURL(f)
+
+}
+
+alert("Upload complete")
+
+}
+</script>
+
+</head>
+
+<body>
+
+<h2>Admin Upload</h2>
+
+<input type="file" id="files" multiple accept="image/*">
+
+<br><br>
+
+<button onclick="upload()">Upload</button>
+
+</body>
+</html>
