@@ -31,11 +31,27 @@ let pool=[]
 let current=null
 let done=0
 
-db.collection("cards").orderBy("time","desc").onSnapshot(s=>{
-cards=[]
-s.forEach(d=>cards.push(d.data()))
+async function loadImages(){
+
+const res = await fetch(
+"https://api.github.com/repos/jinqiran/flashcards/contents/images"
+)
+
+const data = await res.json()
+
+cards = data
+.filter(f => f.name.match(/\.(png|jpg|jpeg|gif)$/i))
+.map(f => ({
+name: f.name,
+url: f.download_url,
+time: Date.now()
+}))
+
 render()
-})
+
+}
+
+loadImages()
 
 function render(){
 
