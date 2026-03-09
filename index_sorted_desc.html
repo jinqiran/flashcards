@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Flashcards</title>
+<style>
+body{font-family:Arial, sans-serif;margin:20px;line-height:1.35;}
+h1{margin:0 0 10px 0;}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px 0;}
+button{padding:10px 16px;font-size:16px;cursor:pointer;}
+#search{width:100%;padding:10px;font-size:16px;box-sizing:border-box;margin:12px 0 18px 0;}
+#quizBox{border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:14px;background:#fafafa;}
+#quizPrompt{font-size:28px;font-weight:bold;margin-bottom:10px;}
+#viewer{margin:12px 0 14px 0;padding:12px;border:1px solid #ddd;border-radius:10px;background:white;min-height:60px;}
+#viewer img{max-width:100%;display:block;margin-top:8px;border-radius:8px;}
+.card{padding:12px 10px;border-bottom:1px solid #ddd;cursor:pointer;display:flex;justify-content:space-between;}
+.card:hover{background:#f5f5f5;}
+</style>
+</head>
+<body>
+
+<h1>Ultimate Flashcards</h1>
+
+<div id="quizBox">
+<div id="quizPrompt">Start quiz</div>
+<div id="viewer"></div>
+
+<div class="controls">
+<button onclick="nextCard()">Start / Next</button>
+<button onclick="showImage()">Show Image</button>
+<button onclick="goFullscreen()">Fullscreen</button>
+</div>
+</div>
+
+<input id="search" placeholder="Search filename..." oninput="render()">
+
+<h2>Cards</h2>
+<div id="cards"></div>
+
+<script>
+
+const IMAGE_API="https://api.github.com/repos/jinqiran/flashcards/contents/images"
+
+let cards=[]
+let current=null
+let quizPool=[]
+let touchStartX=0
+let touchEndX=0
+
+function extractNumber(name){
+let m=name.match(/^(\d+)/)
+return m?parseInt(m[1]):0
+}
+
+async function loadImages(){
+
+const res=await fetch(IMAGE_API)
+const data=await res.json()
+
+cards=data
+.filter(f=>f.type==="file")
+.filter(f=>/\.(png|jpg|jpeg|gif|webp)$/i.test(f.name))
+.map(f=>({
+name:f.name,
+url:f.download_url,
+num:extractNumber(f.name)
+}))
+
+cards.sort((a,b)=>b.num-a.num)
+
+render()
+
+}
+
+function render(){
+
+const q=document.getElementById("search").value.toLowerCase()
+const div=document.getElementById("cards")
+div.innerHTML=""
+
+cards
+.filter(c=>c.name.toLowerCase().includes(q))
+.forEach(c=>{
+
+const row=document.createElement("div")
+row.className="card"
+
+row.innerHTML="<div>"+c.name+"</div>"
+
+row.onclick=()=>{
+current=c
+showImage()
+}
+
+div.appendChild(row)
+
+})
+
+}
+
+function resetQuiz(){
+quizPool=[...cards]
+}
+
+function nextCard(){
+
+if(quizPool.length===0){
+resetQuiz()
+}
+
+current=quizPool.pop()
+
+document.getElementById("quizPrompt").textContent=current.name
+document.getElementById("viewer").innerHTML=""
+
+window.scrollTo({top:0,behavior:"smooth"})
+
+}
+
+function showImage(){
+
+if(!current)return
+
+document.getElementById("viewer").innerHTML=
+"<img src='"+encodeURI(current.url)+"'>"
+
+window.scrollTo({top:0,behavior:"smooth"})
+
+}
+
+function goFullscreen(){
+document.documentElement.requestFullscreen()
+}
+
+document.addEventListener("touchstart",e=>{
+touchStartX=e.changedTouches[0].screenX
+})
+
+document.addEventListener("touchend",e=>{
+touchEndX=e.changedTouches[0].screenX
+if(touchEndX<touchStartX-50){nextCard()}
+if(touchEndX>touchStartX+50){showImage()}
+})
+
+loadImages()
+
+</script>
+
+</body>
+</html>
