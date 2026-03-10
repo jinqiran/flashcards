@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards</title>
+<style>
+body{font-family:Arial;margin:20px;}
+#quizPrompt{font-size:28px;font-weight:bold;margin-bottom:10px;}
+#viewer{border:1px solid #ddd;padding:10px;border-radius:10px;margin-top:10px;}
+#imageViewport{overflow:auto;max-height:75vh;touch-action:none;}
+#quizImage{width:100%;height:auto;transform-origin:top center;}
+button{padding:10px 16px;margin:4px;font-size:16px;cursor:pointer;}
+.card{padding:10px;border-bottom:1px solid #ddd;cursor:pointer;}
+.card:hover{background:#f5f5f5;}
+</style>
+</head>
+<body>
+
+<h1>Flashcards</h1>
+
+<div id="quizPrompt">Start Quiz</div>
+
+<div id="viewer">
+<div id="imageViewport">
+<div id="imageStage"></div>
+</div>
+</div>
+
+<div>
+<button onclick="startQuiz()">Start Quiz</button>
+<button onclick="prevQuizCard()">Previous</button>
+<button onclick="nextQuizCard()">Next</button>
+<button onclick="showImage()">Show Image</button>
+<button onclick="zoomOut()">Zoom -</button>
+<button onclick="zoomIn()">Zoom +</button>
+</div>
+
+<h2>Cards</h2>
+<div id="cards"></div>
+
+<script>
+const IMAGE_API="https://api.github.com/repos/jinqiran/flashcards/contents/images"
+
+let cards=[]
+let current=null
+let quizOrder=[]
+let quizIndex=-1
+let zoom=1
+
+let pinchStartDistance=null
+let pinchStartZoom=1
+
+function extractNumber(name){
+let m=name.match(/^(\d+)/)
+return m?parseInt(m[1]):0
+}
+
+async function loadImages(){
+
+const res=await fetch(IMAGE_API)
+const data=await res.json()
+
+cards=data
+.filter(f=>f.type==="file")
+.filter(f=>/\.(png|jpg|jpeg|gif|webp)$/i.test(f.name))
+.map(f=>({
+name:f.name,
+url:f.download_url,
+num:extractNumber(f.name)
+}))
+
+cards.sort((a,b)=>b.num-a.num)
+
+render()
+
+}
+
+function render(){
+
+const div=document.getElementById("cards")
+div.innerHTML=""
+
+cards.forEach(c=>{
+
+const row=document.createElement("div")
+row.className="card"
+row.textContent=c.name
+
+row.onclick=()=>{
+current=c
+showImage()
+}
+
+div.appendChild(row)
+
+})
+
+}
+
+function shuffle(arr){
+
+for(let i=arr.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1))
+[arr[i],arr[j]]=[arr[j],arr[i]]
+}
+
+}
+
+function startQuiz(){
+
+quizOrder=[...cards]
+shuffle(quizOrder)
+
+quizIndex=0
+current=quizOrder[quizIndex]
+
+document.getElementById("quizPrompt").textContent=current.name
+
+}
+
+function nextQuizCard(){
+
+quizIndex++
+
+if(quizIndex>=quizOrder.length){
+shuffle(quizOrder)
+quizIndex=0
+}
+
+current=quizOrder[quizIndex]
+
+document.getElementById("quizPrompt").textContent=current.name
+clearImage()
+
+}
+
+function prevQuizCard(){
+
+quizIndex--
+
+if(quizIndex<0){
+quizIndex=quizOrder.length-1
+}
+
+current=quizOrder[quizIndex]
+
+document.getElementById("quizPrompt").textContent=current.name
+clearImage()
+
+}
+
+function clearImage(){
+document.getElementById("imageStage").innerHTML=""
+}
+
+function showImage(){
+
+if(!current)return
+
+document.getElementById("imageStage").innerHTML=
+"<img id='quizImage' src='"+current.url+"'>"
+
+applyZoom()
+
+}
+
+function applyZoom(){
+
+const img=document.getElementById("quizImage")
+
+if(img){
+img.style.transform="scale("+zoom+")"
+}
+
+}
+
+function zoomIn(){
+zoom+=0.1
+applyZoom()
+}
+
+function zoomOut(){
+zoom-=0.1
+if(zoom<0.1)zoom=0.1
+applyZoom()
+}
+
+function distance(t1,t2){
+
+let dx=t1.clientX-t2.clientX
+let dy=t1.clientY-t2.clientY
+
+return Math.sqrt(dx*dx+dy*dy)
+
+}
+
+const viewport=document.getElementById("imageViewport")
+
+viewport.addEventListener("touchstart",e=>{
+
+if(e.touches.length===2){
+
+pinchStartDistance=distance(e.touches[0],e.touches[1])
+pinchStartZoom=zoom
+
+}
+
+})
+
+viewport.addEventListener("touchmove",e=>{
+
+if(e.touches.length===2){
+
+e.preventDefault()
+
+let newDistance=distance(e.touches[0],e.touches[1])
+
+zoom=pinchStartZoom*(newDistance/pinchStartDistance)
+
+if(zoom<0.1)zoom=0.1
+if(zoom>8)zoom=8
+
+applyZoom()
+
+}
+
+},{passive:false})
+
+loadImages()
+
+</script>
+
+</body>
+</html>
