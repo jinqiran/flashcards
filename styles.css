@@ -63,7 +63,7 @@ h1{margin:0;font-size:clamp(30px,5vw,40px);line-height:1.02;letter-spacing:-.04e
 .layout{display:grid;grid-template-columns:minmax(0,1.82fr) minmax(320px,.9fr);gap:18px;align-items:start}
 .main-panel,.list-panel{display:flex;flex-direction:column;gap:14px}
 .prompt-card,.viewer-card,.controls-card,.list-panel{
-  background:linear-gradient(180deg,rgba(20,29,45,.92),rgba(14,22,35,.96));
+  background:linear-gradient(180deg,rgba(18,28,44,.96),rgba(12,19,31,.98));
   border:1px solid var(--panel-border);border-radius:var(--radius);box-shadow:var(--shadow)
 }
 .prompt-card,.viewer-card,.controls-card{padding:16px}
@@ -89,16 +89,14 @@ h1{margin:0;font-size:clamp(30px,5vw,40px);line-height:1.02;letter-spacing:-.04e
 .badge-new{background:rgba(208,138,78,.12)}
 .badge-latest{background:rgba(240,190,130,.12)}
 .prompt-text{font-size:clamp(26px,5vw,40px);font-weight:900;line-height:1.14;word-break:break-word}
-.prompt-primary-actions{margin-top:12px;display:flex;gap:10px}
-.start-quiz-btn{min-height:46px;padding:12px 18px;border-radius:16px}
 .progress-track{margin-top:12px;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
 .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .18s ease}
-.viewer-card{padding:12px;background:linear-gradient(180deg,rgba(18,28,44,.94),rgba(14,22,35,.98))}
+.viewer-card{padding:12px;background:linear-gradient(180deg,rgba(17,26,42,.98),rgba(12,19,31,.99))}
 .viewer-topline{margin-bottom:8px}
 #viewerTitle{font-weight:800}
 .image-viewport{
-  min-height:60vh;max-height:82vh;overflow:auto;-webkit-overflow-scrolling:touch;
-  background:linear-gradient(180deg,#f9f7f2,#f2eee7);
+  min-height:66vh;max-height:84vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,#faf8f3,#f2eee7);
   border-radius:22px;padding:10px;
   touch-action:pinch-zoom pan-y;
   box-shadow:inset 0 0 0 1px rgba(15,23,42,.05), 0 10px 24px rgba(0,0,0,.12)

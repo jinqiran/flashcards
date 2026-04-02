@@ -40,7 +40,6 @@ const els = {
   randomBtn: document.getElementById('randomBtn'),
   progressFill: document.getElementById('progressFill'),
   cardCounter: document.getElementById('cardCounter'),
-  promptStartBtn: document.getElementById('promptStartBtn'),
 };
 
 function isMobileLayout(){
@@ -72,24 +71,23 @@ function setViewerMeta(text = '完整顯示'){
 }
 
 
-function syncStartButton(){
-  if (!els.promptStartBtn) return;
-  const started = Boolean(state.quizDeck.length && state.quizIndex >= 0 && state.current);
-  els.promptStartBtn.textContent = started ? '重新開始' : '開始';
-}
-
 function setRevealButtonLabels(){
   const label = state.imageShown ? '隱藏圖片' : '顯示圖片';
   els.revealBtn.textContent = label;
   els.hideBtn.disabled = !state.imageShown;
-  syncStartButton();
 }
 
 function updateProgress(){
   const total = state.quizDeck.length || state.cards.length || 0;
-  const currentIndex = state.quizDeck.length && state.quizIndex >= 0 ? state.quizIndex + 1 : (state.current ? 1 : 0);
+  let currentIndex = 0;
+  if (state.quizDeck.length && state.quizIndex >= 0) {
+    currentIndex = state.quizIndex + 1;
+  } else if (state.current && state.cards.length) {
+    const idx = state.cards.findIndex(card => card.name === state.current.name);
+    currentIndex = idx >= 0 ? idx + 1 : 1;
+  }
   els.cardCounter.textContent = `${currentIndex} / ${total}`;
-  const pct = total && state.quizDeck.length && state.quizIndex >= 0 ? ((state.quizIndex + 1) / total) * 100 : 0;
+  const pct = total && currentIndex ? (currentIndex / total) * 100 : 0;
   els.progressFill.style.width = `${pct}%`;
 }
 
@@ -124,7 +122,7 @@ function updateQuizInfo(){
     return;
   }
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
-    els.quizInfo.textContent = `共 ${state.cards.length} 張卡片 · 點開始進入測驗`;
+    els.quizInfo.textContent = `最新加入 · 共 ${state.cards.length} 張卡片`;
     updateProgress();
     renderPromptBadges();
     setRevealButtonLabels();
@@ -156,7 +154,7 @@ function selectCard(card, options = {}){
   if (!card) {
     state.quizIndex = -1;
     state.imageShown = false;
-    els.quizPrompt.textContent = '按「開始」進入測驗';
+    els.quizPrompt.textContent = '最新加入';
     showPlaceholder('尚未顯示圖片');
     renderCardList();
     updateQuizInfo();
@@ -190,6 +188,17 @@ function renderImage(){
     els.imageViewport.scrollTop = 0;
     const tall = img.naturalHeight > img.naturalWidth * 1.35;
     img.classList.toggle('is-tall', tall);
+    if (tall) {
+      img.style.width = '100%';
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.maxHeight = 'none';
+    } else {
+      img.style.width = 'auto';
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.maxHeight = '72svh';
+    }
     setViewerMeta(tall ? '長圖 · 可上下滑動' : '完整顯示');
   });
 
@@ -389,7 +398,12 @@ function syncToolsPanel(){
 
 function toggleReveal(){
   if (!state.current) {
-    startQuiz();
+    const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
+    if (newest) {
+      state.quizDeck = [...state.cards];
+      state.quizIndex = state.quizDeck.findIndex(card => card.name === newest.name);
+      selectCard(newest, { showImage: true });
+    }
     return;
   }
   if (state.imageShown) hideImage();
@@ -427,7 +441,7 @@ els.toggleToolsBtn.addEventListener('click', () => {
   persistState();
 });
 els.startBtn.addEventListener('click', startQuiz);
-els.promptStartBtn.addEventListener('click', startQuiz);
+
 els.prevBtn.addEventListener('click', prevQuiz);
 els.nextBtn.addEventListener('click', nextQuiz);
 els.revealBtn.addEventListener('click', toggleReveal);
