@@ -11,7 +11,6 @@ BUILD_META = ROOT / "build-meta.json"
 SW = ROOT / "sw.js"
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
-
 UNI_RE = re.compile(r"#U([0-9A-Fa-f]{4,6})")
 
 def decode_hash_unicode(text: str) -> str:
@@ -22,13 +21,12 @@ def decode_hash_unicode(text: str) -> str:
             return m.group(0)
     return UNI_RE.sub(repl, text)
 
-def clean_title(stem: str) -> str:
-    s = decode_hash_unicode(stem).strip()
+def normalize_title(stem: str) -> str:
+    s = stem.strip()
+    s = s.replace("#Uff08", "（").replace("#UFF08", "（")
+    s = s.replace("#Uff09", "）").replace("#UFF09", "）")
+    s = decode_hash_unicode(s)
     s = s.replace("_", " ")
-    s = re.sub(r"\s+", " ", s)
-    s = s.replace("（", "(").replace("）", ")")
-    s = re.sub(r"\s*\(\s*", "（", s)
-    s = re.sub(r"\s*\)\s*", "）", s)
     s = re.sub(r"\s+", "", s)
     return s
 
@@ -36,25 +34,42 @@ def infer_id(title: str, fallback: int) -> int:
     m = re.match(r"(\d+)", title)
     return int(m.group(1)) if m else fallback
 
+def is_encoded_filename(name: str) -> bool:
+    return "#U" in name
+
 files = []
 for p in IMAGES.iterdir():
     if p.is_file() and p.suffix.lower() in IMAGE_EXTS:
-        title = clean_title(p.stem)
+        title = normalize_title(p.stem)
         files.append({
             "filename": p.name,
             "title": title,
             "id": infer_id(title, 0),
+            "encoded": is_encoded_filename(p.name),
         })
 
+# Deduplicate by normalized title; prefer human-readable names
+best_by_title = {}
+for f in files:
+    existing = best_by_title.get(f["title"])
+    if existing is None:
+        best_by_title[f["title"]] = f
+    else:
+        if existing["encoded"] and not f["encoded"]:
+            best_by_title[f["title"]] = f
+        elif existing["encoded"] == f["encoded"] and f["filename"] > existing["filename"]:
+            best_by_title[f["title"]] = f
+
+files = list(best_by_title.values())
 files.sort(key=lambda x: (x["id"], x["filename"]), reverse=True)
 
-seen = set()
+seen_ids = set()
 next_id = max([f["id"] for f in files] + [0])
 for f in files:
-    if f["id"] <= 0 or f["id"] in seen:
+    if f["id"] <= 0 or f["id"] in seen_ids:
         next_id += 1
         f["id"] = next_id
-    seen.add(f["id"])
+    seen_ids.add(f["id"])
 
 cards = [{
     "id": f["id"],
