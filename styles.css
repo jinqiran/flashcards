@@ -7,9 +7,9 @@
   --line:#334155;
   --text:#f8fafc;
   --muted:#98a6bf;
-  --accent:#7f1d1d;
-  --accent-2:#c2410c;
-  --accent-3:#450a0a;
+  --accent:#cc1f1f;
+  --accent-2:#ff5a4f;
+  --accent-3:#981717;
   --gold:#f5c46b;
   --shadow:0 18px 50px rgba(2,8,23,.34);
   --shadow-soft:0 12px 32px rgba(2,8,23,.22);
@@ -20,21 +20,21 @@
 html,body{margin:0;padding:0;min-height:100%;background:radial-gradient(circle at top left,rgba(220,38,38,.16),transparent 24%),radial-gradient(circle at top right,rgba(59,130,246,.10),transparent 28%),linear-gradient(180deg,#07101f 0%,#0b1530 42%,#091222 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans CJK SC","PingFang TC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 body{overscroll-behavior-y:contain}
 button,input{font:inherit}
-button{border:0;border-radius:18px;padding:14px 12px;background:linear-gradient(180deg,#8b1e1e,#5f1010);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(97,16,16,.24);transition:transform .12s ease, filter .12s ease, box-shadow .12s ease}
+button{border:0;border-radius:18px;padding:14px 12px;background:linear-gradient(180deg,var(--accent),var(--accent-3));color:#fff;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(204,31,31,.26);transition:transform .12s ease, filter .12s ease, box-shadow .12s ease}
 button:hover{filter:brightness(1.04)}
 button:active{transform:translateY(1px)}
 button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.ghost-btn{background:rgba(255,255,255,.045);box-shadow:none;border:1px solid rgba(255,255,255,.09);color:#edf2ff}
+.ghost-btn{background:rgba(255,255,255,.07);box-shadow:none;border:1px solid rgba(255,255,255,.10)}
 .small-btn{padding:10px 12px;border-radius:14px;font-size:14px}
 .accent-strong{background:linear-gradient(180deg,var(--accent),var(--accent-3))}
 .app-shell{max-width:1280px;margin:0 auto;padding:16px 14px calc(94px + var(--safe-bottom))}
 .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:16px}
 .topbar-actions{display:flex;gap:10px;flex-wrap:wrap}
 .brand-block{display:flex;align-items:center;gap:14px}
-.brand-logo{width:62px;height:62px;border-radius:18px;flex:0 0 auto;box-shadow:0 12px 30px rgba(15,23,42,.18);background:#f9f7f2;padding:7px}
+.brand-logo{width:62px;height:62px;border-radius:18px;flex:0 0 auto;box-shadow:0 10px 26px rgba(220,38,38,.22);background:#fff}
 .brand-copy{min-width:0}
 .brand-subtle{margin-top:4px;color:#d6dbea;font-size:15px;font-weight:700;letter-spacing:.01em}
-.eyebrow{font-size:12px;color:#c7cedd;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.eyebrow{font-size:13px;color:#ff8a80;letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px}
 h1{margin:0;font-size:clamp(24px,4.5vw,36px);line-height:1.08;letter-spacing:-.02em}
 .layout{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(320px,.94fr);gap:18px;align-items:start}
 .main-panel,.list-panel{display:flex;flex-direction:column;gap:16px}
@@ -55,14 +55,13 @@ h1{margin:0;font-size:clamp(24px,4.5vw,36px);line-height:1.08;letter-spacing:-.0
 .tap-hint{margin-top:10px;color:var(--muted);font-size:13px}
 .progress-track{margin-top:12px;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
 .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .18s ease}
-.viewer-card{padding-bottom:16px;background:linear-gradient(180deg,rgba(18,28,54,.86),rgba(10,18,36,.96))}
+.viewer-card{padding-bottom:16px}
 .viewer-topline{margin-bottom:10px}
-.image-viewport{min-height:44vh;max-height:72vh;overflow:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#fdfcf8,#f6f5f1);border-radius:22px;padding:16px;touch-action:pinch-zoom pan-y;box-shadow:inset 0 0 0 1px rgba(15,23,42,.05)}
-.image-stage{min-height:calc(44vh - 28px);display:flex;align-items:flex-start;justify-content:center}
+.image-viewport{min-height:44vh;max-height:72vh;overflow:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#fff,#f8fafc);border-radius:22px;padding:14px;touch-action:pan-y pan-x pinch-zoom;box-shadow:inset 0 0 0 1px rgba(15,23,42,.06)}
+.image-stage{min-height:calc(44vh - 28px);display:block}
 .placeholder{color:#64748b;padding:46px 14px;text-align:center;line-height:1.7}
-#quizImage{display:block;width:auto;max-width:100%;height:auto;transform-origin:top center;will-change:transform;user-select:none;-webkit-user-drag:none;border-radius:12px;box-shadow:0 2px 14px rgba(15,23,42,.08)}
+#quizImage{display:block;width:100%;max-width:100%;height:auto;transform-origin:top center;will-change:transform;user-select:none;-webkit-user-drag:none;border-radius:12px;box-shadow:0 2px 14px rgba(15,23,42,.08)}
 .button-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.refined-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .secondary-grid button{min-height:50px}
 .list-panel{padding:14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:hidden;background:linear-gradient(180deg,rgba(17,29,58,.82),rgba(8,16,34,.94))}
 .list-header h2{margin:0;font-size:20px}
@@ -93,9 +92,9 @@ h1{margin:0;font-size:clamp(24px,4.5vw,36px);line-height:1.08;letter-spacing:-.0
   .mobile-action-bar{display:grid}
   .hidden-mobile-panel{display:none}
   .hidden-mobile-panel.open{display:block}
-  .image-viewport{min-height:0;max-height:none;overflow:auto;padding:12px 12px 18px}
-  .image-stage{min-height:0;display:block}
-  #quizImage{display:block;width:100%;height:auto;max-height:none;transform:none !important}
+  .image-viewport{min-height:0;max-height:none;overflow:visible;padding:10px}
+  .image-stage{min-height:0}
+  #quizImage{width:100%;height:auto;max-height:none;transform:none !important}
   .viewer-card{padding-bottom:18px}
   .topbar{position:sticky;top:0;z-index:12;padding-top:max(8px, env(safe-area-inset-top));background:linear-gradient(180deg,rgba(7,16,31,.96),rgba(7,16,31,.72) 78%,transparent);backdrop-filter:blur(14px)}
 }
@@ -107,5 +106,5 @@ h1{margin:0;font-size:clamp(24px,4.5vw,36px);line-height:1.08;letter-spacing:-.0
   .brand-logo{width:60px;height:60px}
   .prompt-card,.viewer-card,.controls-card{padding:16px}
   .prompt-text{font-size:clamp(22px,9vw,38px)}
-  .button-grid,.refined-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .button-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }

@@ -6,17 +6,17 @@ const state = {
   quizDeck: [],
   quizIndex: -1,
   current: null,
+  zoom: 1,
   imageShown: false,
   toolsOpen: false,
   maxCardId: 0,
-  recentOnly: false,
 };
 
 const els = {
   promptCard: document.getElementById('promptCard'),
   quizPrompt: document.getElementById('quizPrompt'),
   quizInfo: document.getElementById('quizInfo'),
-  viewerMeta: document.getElementById('viewerMeta'),
+  zoomLabel: document.getElementById('zoomLabel'),
   imageStage: document.getElementById('imageStage'),
   imageViewport: document.getElementById('imageViewport'),
   viewerTitle: document.getElementById('viewerTitle'),
@@ -34,8 +34,10 @@ const els = {
   nextBtn: document.getElementById('mobileNextBtn'),
   revealBtn: document.getElementById('mobileRevealBtn'),
   shuffleBtn: document.getElementById('shuffleBtn'),
-  latestBtn: document.getElementById('latestBtn'),
-  recentBtn: document.getElementById('recentBtn'),
+  resetZoomBtn: document.getElementById('resetZoomBtn'),
+  zoomOutBtn: document.getElementById('zoomOutBtn'),
+  zoomInBtn: document.getElementById('zoomInBtn'),
+  fitBtn: document.getElementById('fitBtn'),
   hideBtn: document.getElementById('hideBtn'),
   randomBtn: document.getElementById('randomBtn'),
   progressFill: document.getElementById('progressFill'),
@@ -66,8 +68,17 @@ function escapeHtml(text){
     .replaceAll("'", '&#39;');
 }
 
-function setViewerMeta(text = '完整顯示'){
-  if (els.viewerMeta) els.viewerMeta.textContent = text;
+function setZoom(value, persist = true){
+  state.zoom = clamp(Math.round(value * 100) / 100, 0.5, 5);
+  const img = document.getElementById('quizImage');
+  if (img && !isMobileLayout()) {
+    img.style.transform = `scale(${state.zoom})`;
+  } else if (img) {
+    img.style.transform = 'none';
+    state.zoom = 1;
+  }
+  els.zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+  if (persist) persistState();
 }
 
 function setRevealButtonLabels(){
@@ -111,7 +122,6 @@ function updateQuizInfo(){
     updateProgress();
     renderPromptBadges();
     setRevealButtonLabels();
-    if (els.recentBtn) els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
     return;
   }
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
@@ -130,7 +140,6 @@ function updateQuizInfo(){
 
 function showPlaceholder(text){
   els.viewerTitle.textContent = '圖片';
-  setViewerMeta('未顯示');
   els.imageStage.innerHTML = `<div class="placeholder">${escapeHtml(text)}</div>`;
   setRevealButtonLabels();
 }
@@ -159,7 +168,7 @@ function selectCard(card, options = {}){
   state.imageShown = Boolean(options.showImage);
   els.quizPrompt.textContent = card.title || card.name;
   els.viewerTitle.textContent = card.title || '圖片';
-  setViewerMeta('完整顯示');
+  setZoom(1, false);
 
   if (options.showImage) {
     renderImage();
@@ -179,7 +188,28 @@ function renderImage(){
   const img = document.getElementById('quizImage');
   img.addEventListener('load', () => {
     els.imageViewport.scrollTop = 0;
-    setViewerMeta(img.naturalHeight > img.naturalWidth * 1.35 ? '長圖 · 可上下滑動' : '完整顯示');
+    if (isMobileLayout()) {
+      img.style.transform = 'none';
+      els.zoomLabel.textContent = '100%';
+    } else {
+      setZoom(state.zoom, false);
+    }
+  });
+
+  let lastTap = 0;
+  img.addEventListener('dblclick', event => {
+    event.preventDefault();
+    if (isMobileLayout()) return;
+    if (state.zoom > 1.1) setZoom(1);
+    else setZoom(2.2);
+  });
+  img.addEventListener('touchend', () => {
+    const now = Date.now();
+    if (now - lastTap < 260 && !isMobileLayout()) {
+      if (state.zoom > 1.1) setZoom(1);
+      else setZoom(2.2);
+    }
+    lastTap = now;
   });
 
   state.imageShown = true;
@@ -249,26 +279,10 @@ function pickRandomCard(){
 
 function filterCards(){
   const q = els.searchInput.value.trim().toLowerCase();
-  const source = state.recentOnly ? state.cards.filter(isLatestCard) : state.cards;
   state.filteredCards = !q
-    ? [...source]
-    : source.filter(card => (card.title || '').toLowerCase().includes(q) || (card.name || '').toLowerCase().includes(q));
+    ? [...state.cards]
+    : state.cards.filter(card => (card.title || '').toLowerCase().includes(q) || (card.name || '').toLowerCase().includes(q));
   renderCardList();
-}
-
-function toggleRecentOnly(){
-  state.recentOnly = !state.recentOnly;
-  els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
-  filterCards();
-  persistState();
-}
-
-function jumpToLatest(){
-  if (!state.cards.length) return;
-  const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
-  if (!newest) return;
-  ensureDeckContains(newest);
-  selectCard(newest, { showImage: true });
 }
 
 function renderCardList(){
@@ -308,10 +322,10 @@ function persistState(){
     currentName: state.current ? state.current.name : null,
     quizDeckNames: state.quizDeck.map(card => card.name),
     quizIndex: state.quizIndex,
+    zoom: state.zoom,
     imageShown: state.imageShown,
     query: els.searchInput.value || '',
     toolsOpen: state.toolsOpen,
-    recentOnly: state.recentOnly,
   };
   localStorage.setItem('flashcards-mobile-state', JSON.stringify(data));
 }
@@ -327,15 +341,15 @@ function restoreState(){
       ? saved.quizDeckNames.map(name => byName.get(name)).filter(Boolean)
       : [];
     state.quizIndex = Number.isInteger(saved.quizIndex) ? saved.quizIndex : -1;
+    state.zoom = typeof saved.zoom === 'number' ? saved.zoom : 1;
     state.toolsOpen = Boolean(saved.toolsOpen);
-    state.recentOnly = Boolean(saved.recentOnly);
-    if (els.recentBtn) els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
     filterCards();
     syncToolsPanel();
 
     const current = saved.currentName ? byName.get(saved.currentName) : null;
     if (current) {
       selectCard(current, { showImage: Boolean(saved.imageShown) });
+      setZoom(state.zoom, false);
     } else {
       updateQuizInfo();
       setRevealButtonLabels();
@@ -414,8 +428,10 @@ els.revealBtn.addEventListener('click', toggleReveal);
 els.shuffleBtn.addEventListener('click', reshuffleQuiz);
 els.hideBtn.addEventListener('click', hideImage);
 els.randomBtn.addEventListener('click', pickRandomCard);
-els.latestBtn.addEventListener('click', jumpToLatest);
-els.recentBtn.addEventListener('click', toggleRecentOnly);
+els.resetZoomBtn.addEventListener('click', () => setZoom(1));
+els.fitBtn.addEventListener('click', () => setZoom(1));
+els.zoomOutBtn.addEventListener('click', () => setZoom(state.zoom - 0.2));
+els.zoomInBtn.addEventListener('click', () => setZoom(state.zoom + 0.2));
 els.searchInput.addEventListener('input', () => {
   filterCards();
   persistState();
@@ -428,26 +444,17 @@ els.clearSearchBtn.addEventListener('click', () => {
 
 let touchStartX = 0;
 let touchStartY = 0;
-let swipeTracking = false;
-
-els.promptCard.addEventListener('touchstart', event => {
-  if (event.touches.length !== 1) {
-    swipeTracking = false;
-    return;
-  }
-  const touch = event.touches[0];
+els.imageViewport.addEventListener('touchstart', event => {
+  const touch = event.changedTouches[0];
   touchStartX = touch.clientX;
   touchStartY = touch.clientY;
-  swipeTracking = true;
 }, { passive: true });
 
-els.promptCard.addEventListener('touchend', event => {
-  if (!swipeTracking) return;
+els.imageViewport.addEventListener('touchend', event => {
   const touch = event.changedTouches[0];
   const dx = touch.clientX - touchStartX;
   const dy = touch.clientY - touchStartY;
-  swipeTracking = false;
-  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.2) {
     if (dx < 0) nextQuiz();
     else prevQuiz();
   } else if (!state.imageShown && Math.abs(dx) < 10 && Math.abs(dy) < 10 && state.current) {
@@ -459,6 +466,10 @@ window.addEventListener('resize', () => {
   if (!isMobileLayout()) {
     closeListPanel();
     els.listPanel.classList.remove('hidden');
+  }
+  if (isMobileLayout()) {
+    state.zoom = 1;
+    els.zoomLabel.textContent = '100%';
   }
   syncToolsPanel();
 });
