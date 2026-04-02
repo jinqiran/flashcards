@@ -22,7 +22,7 @@
         <div class="brand-copy">
           <div class="eyebrow">Flashcardo</div>
           <h1>Flashcardo</h1>
-          <div class="brand-subtle">古文字 Flashcards / Quiz</div>
+          <div class="brand-subtle">古文字卡片 · Quiz</div>
         </div>
       </div>
       <div class="topbar-actions">
@@ -42,7 +42,7 @@
             <div class="pill" id="cardCounter">0 / 0</div>
           </div>
           <div id="quizPrompt" class="prompt-text">按「開始」進入測驗</div>
-          <div class="tap-hint">輕點這裡可顯示圖片；左右滑動可切換卡片</div>
+          <div class="tap-hint">輕點這裡顯示圖片；在題目卡上左右滑動切換</div>
           <div class="progress-track" aria-hidden="true">
             <div id="progressFill" class="progress-fill"></div>
           </div>
@@ -51,7 +51,7 @@
         <div class="viewer-card">
           <div class="viewer-topline">
             <span id="viewerTitle">圖片</span>
-            <span id="zoomLabel" class="subtle">100%</span>
+            <span id="viewerMeta" class="subtle">完整顯示</span>
           </div>
           <div id="imageViewport" class="image-viewport">
             <div id="imageStage" class="image-stage">
@@ -63,17 +63,15 @@
         <div id="toolsCard" class="controls-card hidden-mobile-panel">
           <div class="controls-head">
             <div class="label no-margin">工具</div>
-            <div class="subtle">瀏覽、抽查、縮放</div>
+            <div class="subtle">抽查、重排、跳看最新</div>
           </div>
-          <div class="button-grid secondary-grid">
-            <button id="startBtn" type="button">開始</button>
+          <div class="button-grid secondary-grid refined-grid">
+            <button id="startBtn" type="button">重新開始</button>
             <button id="shuffleBtn" type="button">重洗順序</button>
             <button id="hideBtn" type="button">隱藏圖片</button>
             <button id="randomBtn" type="button">隨機一張</button>
-            <button id="resetZoomBtn" type="button">重設縮放</button>
-            <button id="zoomOutBtn" type="button">縮小</button>
-            <button id="zoomInBtn" type="button">放大</button>
-            <button id="fitBtn" type="button">適合寬度</button>
+            <button id="latestBtn" type="button">跳到最新</button>
+            <button id="recentBtn" type="button" class="ghost-btn">只看近期新增</button>
           </div>
         </div>
       </section>
