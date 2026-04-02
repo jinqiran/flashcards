@@ -182,7 +182,7 @@ function selectCard(card, options = {}){
 function renderImage(){
   if (!state.current) return;
   els.viewerTitle.textContent = state.current.title || '圖片';
-  els.imageStage.innerHTML = `<img id="quizImage" src="${state.current.src}" alt="${escapeHtml(state.current.title || state.current.name)}">`;
+  els.imageStage.innerHTML = `<img id="quizImage" src="./${state.current.src.replace(/^\.\//, '')}" alt="${escapeHtml(state.current.title || state.current.name)}">`;
   const img = document.getElementById('quizImage');
   img.addEventListener('load', () => {
     els.imageViewport.scrollTop = 0;
@@ -412,16 +412,20 @@ function toggleReveal(){
 
 async function loadCards(){
   try {
-    let res;
-    try {
-      res = await fetch('cards.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    } catch (primaryErr) {
-      res = await fetch('./cards.json', { cache: 'reload' });
-      if (!res.ok) throw primaryErr;
+    let data = Array.isArray(window.__FLASHCARDO_CARDS__) ? window.__FLASHCARDO_CARDS__ : null;
+
+    if (!data || !data.length) {
+      let res;
+      try {
+        res = await fetch('cards.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } catch (primaryErr) {
+        res = await fetch('./cards.json', { cache: 'reload' });
+        if (!res.ok) throw primaryErr;
+      }
+      data = await res.json();
     }
 
-    const data = await res.json();
     if (!Array.isArray(data) || !data.length) throw new Error('Empty cards data');
 
     state.cards = data;
