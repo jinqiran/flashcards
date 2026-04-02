@@ -1,3 +1,5 @@
+const LATEST_COUNT = 7;
+
 const state = {
   cards: [],
   filteredCards: [],
@@ -7,6 +9,7 @@ const state = {
   zoom: 1,
   imageShown: false,
   toolsOpen: false,
+  maxCardId: 0,
 };
 
 const els = {
@@ -68,7 +71,12 @@ function escapeHtml(text){
 function setZoom(value, persist = true){
   state.zoom = clamp(Math.round(value * 100) / 100, 0.5, 5);
   const img = document.getElementById('quizImage');
-  if (img) img.style.transform = `scale(${state.zoom})`;
+  if (img && !isMobileLayout()) {
+    img.style.transform = `scale(${state.zoom})`;
+  } else if (img) {
+    img.style.transform = 'none';
+    state.zoom = 1;
+  }
   els.zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
   if (persist) persistState();
 }
@@ -87,20 +95,47 @@ function updateProgress(){
   els.progressFill.style.width = `${pct}%`;
 }
 
+function isLatestCard(card){
+  if (!card || typeof card.id !== 'number') return false;
+  return card.id > Math.max(0, state.maxCardId - LATEST_COUNT);
+}
+
+function currentCardBadgeHtml(card){
+  if (!card) return '';
+  if (card.id === state.maxCardId) return '<span class="badge badge-latest">最新加入</span>';
+  if (isLatestCard(card)) return '<span class="badge badge-new">近期新增</span>';
+  return '';
+}
+
+function renderPromptBadges(){
+  const oldBadges = document.getElementById('promptBadges');
+  if (oldBadges) oldBadges.remove();
+  if (!state.current) return;
+  const badgeHtml = currentCardBadgeHtml(state.current);
+  if (!badgeHtml) return;
+  els.quizPrompt.insertAdjacentHTML('beforebegin', `<div id="promptBadges" class="prompt-badges">${badgeHtml}</div>`);
+}
+
 function updateQuizInfo(){
   if (!state.cards.length) {
     els.quizInfo.textContent = '尚未載入資料';
     updateProgress();
+    renderPromptBadges();
+    setRevealButtonLabels();
     return;
   }
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
     els.quizInfo.textContent = `尚未開始 · 共 ${state.cards.length} 張卡片`;
     updateProgress();
+    renderPromptBadges();
+    setRevealButtonLabels();
     return;
   }
   const revealText = state.imageShown ? ' · 已顯示圖片' : ' · 尚未顯示圖片';
   els.quizInfo.textContent = `進度 ${state.quizIndex + 1} / ${state.quizDeck.length}${revealText}`;
   updateProgress();
+  renderPromptBadges();
+  setRevealButtonLabels();
 }
 
 function showPlaceholder(text){
@@ -151,26 +186,33 @@ function renderImage(){
   els.viewerTitle.textContent = state.current.title || '圖片';
   els.imageStage.innerHTML = `<img id="quizImage" src="${state.current.src}" alt="${escapeHtml(state.current.title || state.current.name)}">`;
   const img = document.getElementById('quizImage');
+  img.addEventListener('load', () => {
+    els.imageViewport.scrollTop = 0;
+    if (isMobileLayout()) {
+      img.style.transform = 'none';
+      els.zoomLabel.textContent = '100%';
+    } else {
+      setZoom(state.zoom, false);
+    }
+  });
+
   let lastTap = 0;
-  img.addEventListener('click', () => {});
   img.addEventListener('dblclick', event => {
     event.preventDefault();
-    if (state.zoom > 1.1) {
-      setZoom(1);
-    } else {
-      setZoom(2.2);
-    }
+    if (isMobileLayout()) return;
+    if (state.zoom > 1.1) setZoom(1);
+    else setZoom(2.2);
   });
   img.addEventListener('touchend', () => {
     const now = Date.now();
-    if (now - lastTap < 260) {
+    if (now - lastTap < 260 && !isMobileLayout()) {
       if (state.zoom > 1.1) setZoom(1);
       else setZoom(2.2);
     }
     lastTap = now;
   });
+
   state.imageShown = true;
-  setZoom(state.zoom, false);
   setRevealButtonLabels();
   updateQuizInfo();
   persistState();
@@ -204,9 +246,7 @@ function ensureQuizStarted(){
 function nextQuiz(){
   if (!ensureQuizStarted()) return;
   state.quizIndex += 1;
-  if (state.quizIndex >= state.quizDeck.length) {
-    state.quizIndex = 0;
-  }
+  if (state.quizIndex >= state.quizDeck.length) state.quizIndex = 0;
   selectCard(state.quizDeck[state.quizIndex], { showImage: false });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -255,9 +295,17 @@ function renderCardList(){
 
   list.forEach(card => {
     const item = document.createElement('div');
-    item.className = 'card-item' + (state.current && state.current.name === card.name ? ' active' : '');
+    const isNewest = card.id === state.maxCardId;
+    const isNew = isLatestCard(card);
+    item.className = 'card-item' + (state.current && state.current.name === card.name ? ' active' : '') + (isNew ? ' is-new' : '');
+    const badge = isNewest
+      ? '<span class="card-badge latest">最新</span>'
+      : (isNew ? '<span class="card-badge new">新增</span>' : '');
     item.innerHTML = `
-      <div class="card-title">${escapeHtml(card.title || card.name)}</div>
+      <div class="card-topline">
+        <div class="card-title">${escapeHtml(card.title || card.name)}</div>
+        ${badge}
+      </div>
       <div class="card-meta">${escapeHtml(card.name)}</div>
     `;
     item.addEventListener('click', () => {
@@ -348,6 +396,7 @@ async function loadCards(){
   try {
     const res = await fetch('cards.json', { cache: 'no-store' });
     state.cards = await res.json();
+    state.maxCardId = state.cards.reduce((max, card) => typeof card.id === 'number' && card.id > max ? card.id : max, 0);
     state.filteredCards = [...state.cards];
     renderCardList();
     restoreState();
@@ -417,6 +466,10 @@ window.addEventListener('resize', () => {
   if (!isMobileLayout()) {
     closeListPanel();
     els.listPanel.classList.remove('hidden');
+  }
+  if (isMobileLayout()) {
+    state.zoom = 1;
+    els.zoomLabel.textContent = '100%';
   }
   syncToolsPanel();
 });
