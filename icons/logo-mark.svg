@@ -1,13 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect x="70" y="70" width="884" height="884" rx="180" ry="180" fill="#F4F1E8"/>
-  <g stroke="#171313" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M512 180 L512 340"/>
-    <path d="M512 320 L265 455"/>
-    <path d="M512 320 L759 455"/>
-    <path d="M425 392 L512 470 L599 392"/>
-    <path d="M512 470 L435 585"/>
-    <path d="M512 470 L589 585"/>
-    <path d="M435 585 C 405 675, 378 770, 372 866"/>
-    <path d="M589 585 C 619 675, 646 770, 652 866"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#ffffff"/>
+  <image href="logo-1024.png" x="0" y="0" width="1024" height="1024"/>
 </svg>
