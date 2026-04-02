@@ -1,12 +1,4 @@
-<<<<<<< Updated upstream
 const CACHE_NAME = 'flashcardo-20260402071709';
-=======
-<<<<<<< HEAD
-const CACHE_NAME = 'flashcardo-20260402070704';
-=======
-const CACHE_NAME = 'flashcards-mobile-20260402070211';
->>>>>>> fba28f0709434315f298919a765d7b6ef3509595
->>>>>>> Stashed changes
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -18,7 +10,8 @@ const CORE_ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-192.png',
-  './icons/maskable-512.png'
+  './icons/maskable-512.png',
+  './icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', event => {
