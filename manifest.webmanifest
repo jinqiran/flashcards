@@ -4,8 +4,8 @@
   "description": "Flashcardo 古文字 flashcard 與 quiz 工具。",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f7f3ec",
-  "theme_color": "#f7f3ec",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "icons/icon-192.png",
