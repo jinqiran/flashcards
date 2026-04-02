@@ -412,20 +412,46 @@ function toggleReveal(){
 
 async function loadCards(){
   try {
-    const res = await fetch('cards.json', { cache: 'no-store' });
-    state.cards = await res.json();
+    let res;
+    try {
+      res = await fetch('cards.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (primaryErr) {
+      res = await fetch('./cards.json', { cache: 'reload' });
+      if (!res.ok) throw primaryErr;
+    }
+
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('Empty cards data');
+
+    state.cards = data;
     state.maxCardId = state.cards.reduce((max, card) => typeof card.id === 'number' && card.id > max ? card.id : max, 0);
     state.filteredCards = [...state.cards];
     renderCardList();
     restoreState();
+
+    if (!state.current && state.cards.length) {
+      const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
+      state.quizDeck = [...state.cards];
+      state.quizIndex = state.quizDeck.findIndex(card => newest && card.name === newest.name);
+      selectCard(newest, { showImage: true });
+    }
+
     updateQuizInfo();
     setRevealButtonLabels();
-    syncStartButton();
   } catch (err) {
     console.error(err);
+    localStorage.removeItem('flashcards-mobile-state');
+    state.cards = [];
+    state.filteredCards = [];
+    state.quizDeck = [];
+    state.quizIndex = -1;
+    state.current = null;
+    els.cardCounter.textContent = '0 / 0';
+    els.progressFill.style.width = '0%';
     els.quizPrompt.textContent = '載入失敗';
-    els.quizInfo.textContent = '無法讀取 cards.json';
-    showPlaceholder('資料載入失敗');
+    els.quizInfo.textContent = '請重新整理一次';
+    showPlaceholder('資料載入失敗，請重新整理或稍後再試');
   }
 }
 
