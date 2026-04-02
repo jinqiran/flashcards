@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <rect x="96" y="96" width="832" height="832" rx="220" fill="#ffffff"/>
-  <g fill="none" stroke="#111111" stroke-width="42" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="512" y1="206" x2="512" y2="330"/>
-    <line x1="510" y1="314" x2="322" y2="424"/>
-    <line x1="514" y1="314" x2="702" y2="424"/>
-    <line x1="442" y1="420" x2="512" y2="488"/>
-    <line x1="582" y1="420" x2="512" y2="488"/>
-    <line x1="512" y1="488" x2="410" y2="760"/>
-    <line x1="512" y1="488" x2="614" y2="760"/>
-    <line x1="450" y1="386" x2="512" y2="340"/>
-    <line x1="574" y1="386" x2="512" y2="340"/>
+  <rect width="1024" height="1024" fill="#ffffff"/>
+  <g fill="none" stroke="#141212" stroke-width="54" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="512" y1="210" x2="512" y2="332"/>
+    <line x1="510" y1="316" x2="300" y2="440"/>
+    <line x1="514" y1="316" x2="724" y2="440"/>
+    <line x1="440" y1="412" x2="512" y2="474"/>
+    <line x1="584" y1="412" x2="512" y2="474"/>
+    <line x1="512" y1="474" x2="404" y2="780"/>
+    <line x1="512" y1="474" x2="620" y2="780"/>
+    <line x1="450" y1="413" x2="574" y2="413"/>
   </g>
 </svg>

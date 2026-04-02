@@ -1,3 +1,4 @@
+
 const LATEST_COUNT = 8;
 
 const state = {
@@ -29,7 +30,6 @@ const els = {
   toggleListBtn: document.getElementById('toggleListBtn'),
   toggleToolsBtn: document.getElementById('toggleToolsBtn'),
   toolsCard: document.getElementById('toolsCard'),
-  startBtn: document.getElementById('startBtn'),
   prevBtn: document.getElementById('mobilePrevBtn'),
   nextBtn: document.getElementById('mobileNextBtn'),
   revealBtn: document.getElementById('mobileRevealBtn'),
@@ -42,9 +42,7 @@ const els = {
   cardCounter: document.getElementById('cardCounter'),
 };
 
-function isMobileLayout(){
-  return window.innerWidth <= 980;
-}
+function isMobileLayout(){ return window.innerWidth <= 980; }
 
 function shuffle(arr){
   for (let i = arr.length - 1; i > 0; i--) {
@@ -53,23 +51,14 @@ function shuffle(arr){
   }
 }
 
-function clamp(value, min, max){
-  return Math.min(max, Math.max(min, value));
-}
-
 function escapeHtml(text){
   return String(text)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;').replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 }
 
-function setViewerMeta(text = '完整顯示'){
-  if (els.viewerMeta) els.viewerMeta.textContent = text;
-}
-
+function setViewerMeta(text='完整顯示'){ if (els.viewerMeta) els.viewerMeta.textContent = text; }
 
 function setRevealButtonLabels(){
   const label = state.imageShown ? '隱藏圖片' : '顯示圖片';
@@ -80,9 +69,8 @@ function setRevealButtonLabels(){
 function updateProgress(){
   const total = state.quizDeck.length || state.cards.length || 0;
   let currentIndex = 0;
-  if (state.quizDeck.length && state.quizIndex >= 0) {
-    currentIndex = state.quizIndex + 1;
-  } else if (state.current && state.cards.length) {
+  if (state.quizDeck.length && state.quizIndex >= 0) currentIndex = state.quizIndex + 1;
+  else if (state.current && state.cards.length) {
     const idx = state.cards.findIndex(card => card.name === state.current.name);
     currentIndex = idx >= 0 ? idx + 1 : 1;
   }
@@ -168,11 +156,8 @@ function selectCard(card, options = {}){
   els.viewerTitle.textContent = card.title || '圖片';
   setViewerMeta('完整顯示');
 
-  if (options.showImage) {
-    renderImage();
-  } else {
-    showPlaceholder('輕點上方卡片或按底部「顯示圖片」查看內容');
-  }
+  if (options.showImage) renderImage();
+  else showPlaceholder('輕點上方卡片或按底部「顯示圖片」查看內容');
 
   renderCardList();
   updateQuizInfo();
@@ -182,7 +167,8 @@ function selectCard(card, options = {}){
 function renderImage(){
   if (!state.current) return;
   els.viewerTitle.textContent = state.current.title || '圖片';
-  els.imageStage.innerHTML = `<img id="quizImage" src="./${state.current.src.replace(/^\.\//, '')}" alt="${escapeHtml(state.current.title || state.current.name)}">`;
+  const safeSrc = './' + String(state.current.src || '').replace(/^\.\//, '');
+  els.imageStage.innerHTML = `<img id="quizImage" src="${safeSrc}" alt="${escapeHtml(state.current.title || state.current.name)}">`;
   const img = document.getElementById('quizImage');
   img.addEventListener('load', () => {
     els.imageViewport.scrollTop = 0;
@@ -197,9 +183,13 @@ function renderImage(){
       img.style.width = 'auto';
       img.style.maxWidth = '100%';
       img.style.height = 'auto';
-      img.style.maxHeight = '72svh';
+      img.style.maxHeight = '76svh';
     }
     setViewerMeta(tall ? '長圖 · 可上下滑動' : '完整顯示');
+  });
+  img.addEventListener('error', () => {
+    els.imageStage.innerHTML = '<div class="placeholder">圖片載入失敗</div>';
+    setViewerMeta('載入失敗');
   });
 
   state.imageShown = true;
@@ -216,18 +206,17 @@ function hideImage(){
   persistState();
 }
 
-function startQuiz(){
+function startFromLatest(){
   if (!state.cards.length) return;
+  const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
   state.quizDeck = [...state.cards];
-  shuffle(state.quizDeck);
-  state.quizIndex = 0;
-  selectCard(state.quizDeck[0], { showImage: false });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  state.quizIndex = state.quizDeck.findIndex(card => newest && card.name === newest.name);
+  selectCard(newest, { showImage: true });
 }
 
 function ensureQuizStarted(){
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
-    startQuiz();
+    startFromLatest();
     return false;
   }
   return true;
@@ -251,10 +240,7 @@ function prevQuiz(){
 
 function reshuffleQuiz(){
   if (!state.cards.length) return;
-  if (!state.quizDeck.length) {
-    startQuiz();
-    return;
-  }
+  state.quizDeck = [...state.cards];
   shuffle(state.quizDeck);
   state.quizIndex = 0;
   selectCard(state.quizDeck[0], { showImage: false });
@@ -276,7 +262,6 @@ function filterCards(){
   renderCardList();
 }
 
-
 function syncRecentButton(){
   if (!els.recentBtn) return;
   els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
@@ -290,13 +275,7 @@ function toggleRecentOnly(){
   persistState();
 }
 
-function jumpToLatest(){
-  if (!state.cards.length) return;
-  const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
-  if (!newest) return;
-  ensureDeckContains(newest);
-  selectCard(newest, { showImage: true });
-}
+function jumpToLatest(){ startFromLatest(); }
 
 function renderCardList(){
   els.cards.innerHTML = '';
@@ -311,9 +290,7 @@ function renderCardList(){
     const isNewest = card.id === state.maxCardId;
     const isNew = isLatestCard(card);
     item.className = 'card-item' + (state.current && state.current.name === card.name ? ' active' : '') + (isNew ? ' is-new' : '');
-    const badge = isNewest
-      ? '<span class="card-badge latest">最新</span>'
-      : (isNew ? '<span class="card-badge new">新增</span>' : '');
+    const badge = isNewest ? '<span class="card-badge latest">最新</span>' : (isNew ? '<span class="card-badge new">新增</span>' : '');
     item.innerHTML = `
       <div class="card-topline">
         <div class="card-title">${escapeHtml(card.title || card.name)}</div>
@@ -345,14 +322,12 @@ function persistState(){
 
 function restoreState(){
   const raw = localStorage.getItem('flashcards-mobile-state');
-  if (!raw) { syncStartButton(); return; }
+  if (!raw) return;
   try {
     const saved = JSON.parse(raw);
     els.searchInput.value = saved.query || '';
     const byName = new Map(state.cards.map(card => [card.name, card]));
-    state.quizDeck = Array.isArray(saved.quizDeckNames)
-      ? saved.quizDeckNames.map(name => byName.get(name)).filter(Boolean)
-      : [];
+    state.quizDeck = Array.isArray(saved.quizDeckNames) ? saved.quizDeckNames.map(name => byName.get(name)).filter(Boolean) : [];
     state.quizIndex = Number.isInteger(saved.quizIndex) ? saved.quizIndex : -1;
     state.toolsOpen = Boolean(saved.toolsOpen);
     state.recentOnly = Boolean(saved.recentOnly);
@@ -389,21 +364,13 @@ function closeListPanel(){
 }
 
 function syncToolsPanel(){
-  if (isMobileLayout()) {
-    els.toolsCard.classList.toggle('open', state.toolsOpen);
-  } else {
-    els.toolsCard.classList.remove('open');
-  }
+  if (isMobileLayout()) els.toolsCard.classList.toggle('open', state.toolsOpen);
+  else els.toolsCard.classList.remove('open');
 }
 
 function toggleReveal(){
   if (!state.current) {
-    const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
-    if (newest) {
-      state.quizDeck = [...state.cards];
-      state.quizIndex = state.quizDeck.findIndex(card => card.name === newest.name);
-      selectCard(newest, { showImage: true });
-    }
+    startFromLatest();
     return;
   }
   if (state.imageShown) hideImage();
@@ -413,19 +380,11 @@ function toggleReveal(){
 async function loadCards(){
   try {
     let data = Array.isArray(window.__FLASHCARDO_CARDS__) ? window.__FLASHCARDO_CARDS__ : null;
-
     if (!data || !data.length) {
-      let res;
-      try {
-        res = await fetch('./cards.json', { cache: 'reload' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      } catch (err) {
-        res = await fetch('cards.json', { cache: 'no-store' });
-        if (!res.ok) throw err;
-      }
+      const res = await fetch('./cards.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       data = await res.json();
     }
-
     if (!Array.isArray(data) || !data.length) throw new Error('Empty cards data');
 
     state.cards = data;
@@ -434,12 +393,7 @@ async function loadCards(){
     renderCardList();
     restoreState();
 
-    if (!state.current && state.cards.length) {
-      const newest = state.cards.reduce((best, card) => (best && best.id > card.id ? best : card), null);
-      state.quizDeck = [...state.cards];
-      state.quizIndex = state.quizDeck.findIndex(card => newest && card.name === newest.name);
-      selectCard(newest, { showImage: true });
-    }
+    if (!state.current && state.cards.length) startFromLatest();
 
     updateQuizInfo();
     setRevealButtonLabels();
@@ -470,39 +424,26 @@ els.toggleToolsBtn.addEventListener('click', () => {
   syncToolsPanel();
   persistState();
 });
-els.startBtn.addEventListener('click', startQuiz);
-
-els.prevBtn.addEventListener('click', prevQuiz);
-els.nextBtn.addEventListener('click', nextQuiz);
-els.revealBtn.addEventListener('click', toggleReveal);
-els.shuffleBtn.addEventListener('click', reshuffleQuiz);
-els.hideBtn.addEventListener('click', hideImage);
-els.randomBtn.addEventListener('click', pickRandomCard);
-els.latestBtn.addEventListener('click', jumpToLatest);
-els.recentBtn.addEventListener('click', toggleRecentOnly);
-els.searchInput.addEventListener('input', () => {
-  filterCards();
-  persistState();
-});
+if (els.prevBtn) els.prevBtn.addEventListener('click', prevQuiz);
+if (els.nextBtn) els.nextBtn.addEventListener('click', nextQuiz);
+if (els.revealBtn) els.revealBtn.addEventListener('click', toggleReveal);
+if (els.shuffleBtn) els.shuffleBtn.addEventListener('click', reshuffleQuiz);
+if (els.hideBtn) els.hideBtn.addEventListener('click', hideImage);
+if (els.randomBtn) els.randomBtn.addEventListener('click', pickRandomCard);
+if (els.latestBtn) els.latestBtn.addEventListener('click', jumpToLatest);
+if (els.recentBtn) els.recentBtn.addEventListener('click', toggleRecentOnly);
+els.searchInput.addEventListener('input', () => { filterCards(); persistState(); });
 els.clearSearchBtn.addEventListener('click', () => {
   els.searchInput.value = '';
   filterCards();
   persistState();
 });
 
-let touchStartX = 0;
-let touchStartY = 0;
-let swipeTracking = false;
-
+let touchStartX = 0, touchStartY = 0, swipeTracking = false;
 els.promptCard.addEventListener('touchstart', event => {
-  if (event.touches.length !== 1) {
-    swipeTracking = false;
-    return;
-  }
+  if (event.touches.length !== 1) { swipeTracking = false; return; }
   const touch = event.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
-  swipeTracking = true;
+  touchStartX = touch.clientX; touchStartY = touch.clientY; swipeTracking = true;
 }, { passive: true });
 
 els.promptCard.addEventListener('touchend', event => {
@@ -512,8 +453,7 @@ els.promptCard.addEventListener('touchend', event => {
   const dy = touch.clientY - touchStartY;
   swipeTracking = false;
   if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.25) {
-    if (dx < 0) nextQuiz();
-    else prevQuiz();
+    if (dx < 0) nextQuiz(); else prevQuiz();
   } else if (!state.imageShown && Math.abs(dx) < 10 && Math.abs(dy) < 10 && state.current) {
     renderImage();
   }
