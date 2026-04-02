@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#07111f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Flashcardo">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <title>Flashcardo</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -21,7 +21,7 @@
         <h1>Flashcardo</h1>
       </div>
       <div class="topbar-actions compact-actions">
-        <button id="toggleListBtn" class="ghost-btn compact-btn" type="button">列表</button>
+        <button id="toggleListBtn" class="ghost-btn compact-btn" type="button">卡片</button>
         <button id="toggleToolsBtn" class="ghost-btn compact-btn" type="button">工具</button>
       </div>
     </header>
@@ -31,13 +31,12 @@
         <div class="prompt-card tappable" id="promptCard">
           <div class="prompt-head">
             <div>
-              <div class="label">題目</div>
+              <div class="label">當前卡片</div>
               <div id="quizInfo" class="subtle">尚未開始</div>
             </div>
             <div class="pill" id="cardCounter">0 / 0</div>
           </div>
           <div id="quizPrompt" class="prompt-text">按「開始」進入測驗</div>
-          <div class="tap-hint">輕點這裡顯示圖片；在題目卡上左右滑動切換</div>
           <div class="progress-track" aria-hidden="true">
             <div id="progressFill" class="progress-fill"></div>
           </div>
@@ -58,15 +57,15 @@
         <div id="toolsCard" class="controls-card hidden-mobile-panel">
           <div class="controls-head">
             <div class="label no-margin">工具</div>
-            <div class="subtle">抽查、重排、跳看最新</div>
+            <div class="subtle">常用操作</div>
           </div>
-          <div class="button-grid secondary-grid refined-grid">
+          <div class="button-grid refined-grid">
             <button id="startBtn" type="button">重新開始</button>
             <button id="shuffleBtn" type="button">重洗順序</button>
-            <button id="hideBtn" type="button">隱藏圖片</button>
             <button id="randomBtn" type="button">隨機一張</button>
             <button id="latestBtn" type="button">跳到最新</button>
             <button id="recentBtn" type="button" class="ghost-btn">只看近期新增</button>
+            <button id="hideBtn" type="button">隱藏圖片</button>
           </div>
         </div>
       </section>
@@ -75,7 +74,7 @@
         <div class="list-header">
           <div>
             <h2>全部卡片</h2>
-            <div class="subtle">點一下直接打開該卡</div>
+            <div class="subtle">點一下直接打開</div>
           </div>
           <button id="closeListBtn" class="ghost-btn small-btn" type="button">關閉</button>
         </div>

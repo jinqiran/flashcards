@@ -1,4 +1,4 @@
-const LATEST_COUNT = 7;
+const LATEST_COUNT = 8;
 
 const state = {
   cards: [],
@@ -111,11 +111,11 @@ function updateQuizInfo(){
     updateProgress();
     renderPromptBadges();
     setRevealButtonLabels();
-    if (els.recentBtn) els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
+    syncRecentButton();
     return;
   }
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
-    els.quizInfo.textContent = `尚未開始 · 共 ${state.cards.length} 張卡片`;
+    els.quizInfo.textContent = `共 ${state.cards.length} 張卡片`;
     updateProgress();
     renderPromptBadges();
     setRevealButtonLabels();
@@ -164,7 +164,7 @@ function selectCard(card, options = {}){
   if (options.showImage) {
     renderImage();
   } else {
-    showPlaceholder('輕點上方題目卡片，或按底部「顯示圖片」查看內容');
+    showPlaceholder('輕點上方卡片或按底部「顯示圖片」查看內容');
   }
 
   renderCardList();
@@ -256,9 +256,16 @@ function filterCards(){
   renderCardList();
 }
 
+
+function syncRecentButton(){
+  if (!els.recentBtn) return;
+  els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
+  els.recentBtn.classList.toggle('active-filter', state.recentOnly);
+}
+
 function toggleRecentOnly(){
   state.recentOnly = !state.recentOnly;
-  els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
+  syncRecentButton();
   filterCards();
   persistState();
 }
@@ -329,7 +336,7 @@ function restoreState(){
     state.quizIndex = Number.isInteger(saved.quizIndex) ? saved.quizIndex : -1;
     state.toolsOpen = Boolean(saved.toolsOpen);
     state.recentOnly = Boolean(saved.recentOnly);
-    if (els.recentBtn) els.recentBtn.textContent = state.recentOnly ? '顯示全部卡片' : '只看近期新增';
+    syncRecentButton();
     filterCards();
     syncToolsPanel();
 
