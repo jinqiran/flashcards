@@ -40,6 +40,7 @@ const els = {
   randomBtn: document.getElementById('randomBtn'),
   progressFill: document.getElementById('progressFill'),
   cardCounter: document.getElementById('cardCounter'),
+  promptStartBtn: document.getElementById('promptStartBtn'),
 };
 
 function isMobileLayout(){
@@ -70,10 +71,18 @@ function setViewerMeta(text = '完整顯示'){
   if (els.viewerMeta) els.viewerMeta.textContent = text;
 }
 
+
+function syncStartButton(){
+  if (!els.promptStartBtn) return;
+  const started = Boolean(state.quizDeck.length && state.quizIndex >= 0 && state.current);
+  els.promptStartBtn.textContent = started ? '重新開始' : '開始';
+}
+
 function setRevealButtonLabels(){
   const label = state.imageShown ? '隱藏圖片' : '顯示圖片';
   els.revealBtn.textContent = label;
   els.hideBtn.disabled = !state.imageShown;
+  syncStartButton();
 }
 
 function updateProgress(){
@@ -115,7 +124,7 @@ function updateQuizInfo(){
     return;
   }
   if (!state.quizDeck.length || state.quizIndex < 0 || !state.current) {
-    els.quizInfo.textContent = `共 ${state.cards.length} 張卡片`;
+    els.quizInfo.textContent = `共 ${state.cards.length} 張卡片 · 點開始進入測驗`;
     updateProgress();
     renderPromptBadges();
     setRevealButtonLabels();
@@ -179,7 +188,9 @@ function renderImage(){
   const img = document.getElementById('quizImage');
   img.addEventListener('load', () => {
     els.imageViewport.scrollTop = 0;
-    setViewerMeta(img.naturalHeight > img.naturalWidth * 1.35 ? '長圖 · 可上下滑動' : '完整顯示');
+    const tall = img.naturalHeight > img.naturalWidth * 1.35;
+    img.classList.toggle('is-tall', tall);
+    setViewerMeta(tall ? '長圖 · 可上下滑動' : '完整顯示');
   });
 
   state.imageShown = true;
@@ -325,7 +336,7 @@ function persistState(){
 
 function restoreState(){
   const raw = localStorage.getItem('flashcards-mobile-state');
-  if (!raw) return;
+  if (!raw) { syncStartButton(); return; }
   try {
     const saved = JSON.parse(raw);
     els.searchInput.value = saved.query || '';
@@ -395,6 +406,7 @@ async function loadCards(){
     restoreState();
     updateQuizInfo();
     setRevealButtonLabels();
+    syncStartButton();
   } catch (err) {
     console.error(err);
     els.quizPrompt.textContent = '載入失敗';
@@ -415,6 +427,7 @@ els.toggleToolsBtn.addEventListener('click', () => {
   persistState();
 });
 els.startBtn.addEventListener('click', startQuiz);
+els.promptStartBtn.addEventListener('click', startQuiz);
 els.prevBtn.addEventListener('click', prevQuiz);
 els.nextBtn.addEventListener('click', nextQuiz);
 els.revealBtn.addEventListener('click', toggleReveal);
