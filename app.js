@@ -417,11 +417,11 @@ async function loadCards(){
     if (!data || !data.length) {
       let res;
       try {
-        res = await fetch('cards.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      } catch (primaryErr) {
         res = await fetch('./cards.json', { cache: 'reload' });
-        if (!res.ok) throw primaryErr;
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } catch (err) {
+        res = await fetch('cards.json', { cache: 'no-store' });
+        if (!res.ok) throw err;
       }
       data = await res.json();
     }
