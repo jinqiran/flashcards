@@ -1,13 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" rx="0" fill="#f6f2eb"/>
-  <g fill="none" stroke="#141416" stroke-width="72" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M512 145 L512 250" />
-    <path d="M512 235 L305 345" />
-    <path d="M512 235 L719 345" />
-    <path d="M420 360 L512 458" />
-    <path d="M604 360 L512 458" />
-    <path d="M512 458 L398 788" />
-    <path d="M512 458 L626 788" />
+  <rect width="1024" height="1024" rx="220" fill="#f6f3ec"/>
+  <g fill="none" stroke="#111" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M512 163 L512 332"/>
+    <path d="M268 379 L512 250 L756 379"/>
+    <path d="M429 311 L512 393 L595 311"/>
+    <path d="M504 389 C452 469 414 574 399 781"/>
+    <path d="M520 389 C572 469 610 574 625 781"/>
   </g>
-  <polygon points="512,305 565,360 512,415 459,360" fill="#f6f2eb"/>
 </svg>

@@ -1,7 +1,7 @@
 {
   "name": "Flashcardo",
   "short_name": "Flashcardo",
-  "description": "Flashcardo：適合手機使用的離線 flashcard / quiz App。",
+  "description": "Flashcardo 古文字 flashcard 與 quiz 工具。",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
