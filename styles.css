@@ -1,0 +1,94 @@
+:root{
+  --bg:#0f172a;
+  --bg-2:#111827;
+  --panel:rgba(255,255,255,.07);
+  --panel-border:rgba(255,255,255,.10);
+  --line:#334155;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --accent:#b91c1c;
+  --accent-2:#ef4444;
+  --accent-3:#991b1b;
+  --shadow:0 18px 50px rgba(15,23,42,.28);
+  --radius:22px;
+  --safe-bottom:max(14px, env(safe-area-inset-bottom));
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(180deg,#0b1223 0%,#111827 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans CJK SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+body{overscroll-behavior-y:contain}
+button,input{font:inherit}
+button{border:0;border-radius:16px;padding:14px 12px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(59,130,246,.22)}
+button:hover{filter:brightness(1.04)}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ghost-btn{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.11)}
+.small-btn{padding:10px 12px;border-radius:14px;font-size:14px}
+.accent-strong{background:linear-gradient(180deg,var(--accent),var(--accent-3))}
+.app-shell{max-width:1280px;margin:0 auto;padding:12px 12px calc(90px + var(--safe-bottom))}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+.topbar-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+.brand-block{display:flex;align-items:center;gap:14px}
+.brand-logo{width:56px;height:56px;border-radius:14px;flex:0 0 auto;box-shadow:0 10px 28px rgba(120,10,10,.24)}
+.brand-copy{min-width:0}
+.brand-subtle{margin-top:4px;color:var(--muted);font-size:14px;font-weight:700}
+.eyebrow{font-size:12px;color:var(--accent-2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+h1{margin:0;font-size:clamp(22px,4.3vw,34px);line-height:1.12}
+.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,.95fr);gap:18px;align-items:start}
+.main-panel,.list-panel{display:flex;flex-direction:column;gap:16px}
+.prompt-card,.viewer-card,.controls-card,.list-panel{background:var(--panel);border:1px solid var(--panel-border);backdrop-filter:blur(10px);border-radius:var(--radius);box-shadow:var(--shadow)}
+.prompt-card,.viewer-card,.controls-card{padding:16px}
+.tappable{cursor:pointer}
+.prompt-head,.controls-head,.viewer-topline,.list-header,.search-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.prompt-head{align-items:flex-start;margin-bottom:10px}
+.label{font-size:12px;color:var(--accent-2);font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.no-margin{margin-bottom:0}
+.subtle{color:var(--muted);font-size:14px}
+.pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);font-size:13px;font-weight:800;white-space:nowrap}
+.prompt-text{font-size:clamp(24px,5.1vw,42px);font-weight:900;line-height:1.14;word-break:break-word}
+.tap-hint{margin-top:10px;color:var(--muted);font-size:13px}
+.progress-track{margin-top:12px;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .18s ease}
+.viewer-card{padding-bottom:14px}
+.image-viewport{min-height:44vh;max-height:72vh;overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:18px;padding:12px;touch-action:pan-y pan-x pinch-zoom}
+.image-stage{min-height:calc(44vh - 24px);display:flex;align-items:flex-start;justify-content:center}
+.placeholder{color:#64748b;padding:40px 14px;text-align:center;line-height:1.6}
+#quizImage{display:block;max-width:100%;height:auto;transform-origin:top center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.button-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.secondary-grid button{min-height:50px}
+.list-panel{padding:14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:hidden}
+.list-header h2{margin:0;font-size:20px}
+#closeListBtn{display:none}
+.search-row{align-items:stretch}
+#searchInput{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text)}
+.cards-list{overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.card-item{padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);cursor:pointer}
+.card-item:hover{background:rgba(255,255,255,.1)}
+.card-item.active{outline:2px solid var(--accent)}
+.card-title{font-weight:800;line-height:1.28;word-break:break-word}
+.card-meta{margin-top:5px;font-size:12px;color:var(--muted)}
+.mobile-action-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;grid-template-columns:1fr 1.15fr 1fr;gap:10px;padding:10px 12px calc(var(--safe-bottom));background:linear-gradient(180deg,rgba(15,23,42,.10),rgba(15,23,42,.96) 32%,rgba(15,23,42,.98));backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08)}
+.mobile-action-bar button{min-height:54px;border-radius:18px}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);z-index:18}
+.hidden{display:none !important}
+.hidden-mobile-panel{display:block}
+@media (max-width: 980px){
+  #closeListBtn{display:inline-flex}
+  .layout{grid-template-columns:1fr}
+  .list-panel{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:20;max-height:82vh;border-radius:24px 24px 0 0;transform:translateY(102%);transition:transform .22s ease;padding-bottom:calc(16px + var(--safe-bottom))}
+  .list-panel.open{transform:translateY(0)}
+  .mobile-action-bar{display:grid}
+}
+@media (max-width: 720px){
+  .app-shell{padding:10px 10px calc(94px + var(--safe-bottom))}
+  .topbar{margin-bottom:12px}
+  .topbar-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .topbar-actions button{min-height:46px}
+  .prompt-card,.viewer-card,.controls-card,.list-panel{border-radius:20px}
+  .prompt-card,.viewer-card,.controls-card{padding:14px}
+  .button-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .image-viewport{min-height:41vh;max-height:56vh;padding:10px}
+  .image-stage{min-height:calc(41vh - 20px)}
+  .hidden-mobile-panel{display:none}
+  .hidden-mobile-panel.open{display:block}
+}
