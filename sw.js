@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flashcardo-20260503022506';
+const CACHE_NAME = 'flashcardo-20260504040839';
 const CORE_ASSETS = [
   './',
   './index.html',
